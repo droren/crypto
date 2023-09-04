@@ -34,14 +34,15 @@ import (
 // ClientConfig.HostKeyAlgorithms, Signature.Format, or as AlgorithmSigner
 // arguments.
 const (
-	KeyAlgoRSA        = "ssh-rsa"
-	KeyAlgoDSA        = "ssh-dss"
-	KeyAlgoECDSA256   = "ecdsa-sha2-nistp256"
-	KeyAlgoSKECDSA256 = "sk-ecdsa-sha2-nistp256@openssh.com"
-	KeyAlgoECDSA384   = "ecdsa-sha2-nistp384"
-	KeyAlgoECDSA521   = "ecdsa-sha2-nistp521"
-	KeyAlgoED25519    = "ssh-ed25519"
-	KeyAlgoSKED25519  = "sk-ssh-ed25519@openssh.com"
+	KeyAlgoRSA           = "ssh-rsa"
+	KeyAlgoDSA           = "ssh-dss"
+	KeyAlgoX509v3SIGNRSA = "x509v3-sign-rsa-sha1"
+	KeyAlgoECDSA256      = "ecdsa-sha2-nistp256"
+	KeyAlgoSKECDSA256    = "sk-ecdsa-sha2-nistp256@openssh.com"
+	KeyAlgoECDSA384      = "ecdsa-sha2-nistp384"
+	KeyAlgoECDSA521      = "ecdsa-sha2-nistp521"
+	KeyAlgoED25519       = "ssh-ed25519"
+	KeyAlgoSKED25519     = "sk-ssh-ed25519@openssh.com"
 
 	// KeyAlgoRSASHA256 and KeyAlgoRSASHA512 are only public key algorithms, not
 	// public key formats, so they can't appear as a PublicKey.Type. The
@@ -67,6 +68,8 @@ func parsePubKey(in []byte, algo string) (pubKey PublicKey, rest []byte, err err
 		return parseRSA(in)
 	case KeyAlgoDSA:
 		return parseDSA(in)
+	case KeyAlgoX509v3SIGNRSA:
+		return parseX509v3SignRSA(in)
 	case KeyAlgoECDSA256, KeyAlgoECDSA384, KeyAlgoECDSA521:
 		return parseECDSA(in)
 	case KeyAlgoSKECDSA256:
@@ -353,6 +356,23 @@ type rsaPublicKey rsa.PublicKey
 
 func (r *rsaPublicKey) Type() string {
 	return "ssh-rsa"
+}
+
+// parseX509v3SignRSA parses an X509v3-sign-rsa-sha1 according to RFC 6187 and draft-ietf-secsh-x509-03
+func parseX509v3SignRSA(in []byte)(out PublicKey, rest[]byte, err error) {
+	var cert *x509.Certificate
+
+	for pos := range in {
+		cert, err = x509.ParseCertificate(in[pos:])
+		if err == nil {
+			break
+		}
+	}
+	if err != nil {
+		return nil, in, errors.New("ssh: could not extract x509 certificate")
+	}
+	x509Key := cert.PublicKey.(*rsa.PublicKey)
+	return (*rsaPublicKey)(x509Key), rest, nil
 }
 
 // parseRSA parses an RSA key according to RFC 4253, section 6.6.

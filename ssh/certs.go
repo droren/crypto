@@ -473,6 +473,7 @@ var certKeyAlgoNames = map[string]string{
 	CertAlgoSKECDSA256v01: KeyAlgoSKECDSA256,
 	CertAlgoED25519v01:    KeyAlgoED25519,
 	CertAlgoSKED25519v01:  KeyAlgoSKED25519,
+	KeyAlgoX509v3SIGNRSA:  KeyAlgoRSA,
 }
 
 // underlyingAlgo returns the signature algorithm associated with algo (which is
