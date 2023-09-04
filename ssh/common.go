@@ -95,16 +95,17 @@ var supportedCompressions = []string{compressionNone}
 // hashFuncs keeps the mapping of supported signature algorithms to their
 // respective hashes needed for signing and verification.
 var hashFuncs = map[string]crypto.Hash{
-	KeyAlgoRSA:       crypto.SHA1,
-	KeyAlgoRSASHA256: crypto.SHA256,
-	KeyAlgoRSASHA512: crypto.SHA512,
-	KeyAlgoDSA:       crypto.SHA1,
-	KeyAlgoECDSA256:  crypto.SHA256,
-	KeyAlgoECDSA384:  crypto.SHA384,
-	KeyAlgoECDSA521:  crypto.SHA512,
+	KeyAlgoRSA:           crypto.SHA1,
+	KeyAlgoX509v3SIGNRSA: crypto.SHA256,
+	KeyAlgoRSASHA256:     crypto.SHA256,
+	KeyAlgoRSASHA512:     crypto.SHA512,
+	KeyAlgoDSA:           crypto.SHA1,
+	KeyAlgoECDSA256:      crypto.SHA256,
+	KeyAlgoECDSA384:      crypto.SHA384,
+	KeyAlgoECDSA521:      crypto.SHA512,
 	// KeyAlgoED25519 doesn't pre-hash.
-	KeyAlgoSKECDSA256: crypto.SHA256,
-	KeyAlgoSKED25519:  crypto.SHA256,
+	KeyAlgoSKECDSA256:    crypto.SHA256,
+	KeyAlgoSKED25519:     crypto.SHA256,
 }
 
 // algorithmsForKeyFormat returns the supported signature algorithms for a given
@@ -113,7 +114,7 @@ var hashFuncs = map[string]crypto.Hash{
 func algorithmsForKeyFormat(keyFormat string) []string {
 	switch keyFormat {
 	case KeyAlgoRSA:
-		return []string{KeyAlgoRSASHA256, KeyAlgoRSASHA512, KeyAlgoRSA}
+		return []string{KeyAlgoRSASHA256, KeyAlgoRSASHA512, KeyAlgoX509v3SIGNRSA, KeyAlgoRSA}
 	case CertAlgoRSAv01:
 		return []string{CertAlgoRSASHA256v01, CertAlgoRSASHA512v01, CertAlgoRSAv01}
 	default:
@@ -136,7 +137,7 @@ var supportedPubKeyAuthAlgos = []string{
 	KeyAlgoED25519,
 	KeyAlgoSKED25519, KeyAlgoSKECDSA256,
 	KeyAlgoECDSA256, KeyAlgoECDSA384, KeyAlgoECDSA521,
-	KeyAlgoRSASHA256, KeyAlgoRSASHA512, KeyAlgoRSA,
+	KeyAlgoRSASHA256, KeyAlgoRSASHA512, KeyAlgoRSA, KeyAlgoX509v3SIGNRSA,
 	KeyAlgoDSA,
 }
 
