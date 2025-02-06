@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build aix || darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris
-// +build aix darwin dragonfly freebsd linux netbsd openbsd solaris
 
 package test
 
@@ -21,20 +20,21 @@ func TestAgentForward(t *testing.T) {
 	defer conn.Close()
 
 	keyring := agent.NewKeyring()
-	if err := keyring.Add(agent.AddedKey{PrivateKey: testPrivateKeys["dsa"]}); err != nil {
+	if err := keyring.Add(agent.AddedKey{PrivateKey: testPrivateKeys["ecdsa"]}); err != nil {
 		t.Fatalf("Error adding key: %s", err)
 	}
 	if err := keyring.Add(agent.AddedKey{
-		PrivateKey:       testPrivateKeys["dsa"],
+		PrivateKey:       testPrivateKeys["ecdsa"],
 		ConfirmBeforeUse: true,
 		LifetimeSecs:     3600,
 	}); err != nil {
 		t.Fatalf("Error adding key with constraints: %s", err)
 	}
-	pub := testPublicKeys["dsa"]
+	pub := testPublicKeys["ecdsa"]
 
 	sess, err := conn.NewSession()
 	if err != nil {
+		skipIfIssue64959(t, err)
 		t.Fatalf("NewSession: %v", err)
 	}
 	if err := agent.RequestAgentForwarding(sess); err != nil {
